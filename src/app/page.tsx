@@ -7,6 +7,7 @@ import ProgressBar from "@/components/ProgressBar";
 import DownloadButtons from "@/components/DownloadButtons";
 import ImageUpload from "@/components/ImageUpload";
 import MultiImageUpload from "@/components/MultiImageUpload";
+import FormNowUpload from "@/components/FormNowUpload";
 
 type GenerationMode = "text-to-3d" | "image-to-3d" | "multi-image-to-3d";
 
@@ -14,7 +15,7 @@ type GenerationMode = "text-to-3d" | "image-to-3d" | "multi-image-to-3d";
 const ModelViewer = dynamic(() => import("@/components/ModelViewer"), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-[500px] bg-gray-900 rounded-xl flex items-center justify-center">
+    <div className="w-full h-125 bg-gray-900 rounded-xl flex items-center justify-center">
       <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
     </div>
   ),
@@ -22,6 +23,7 @@ const ModelViewer = dynamic(() => import("@/components/ModelViewer"), {
 
 export default function Home() {
   const [apiKey, setApiKey] = useState("");
+  const formNowApiKey = process.env.NEXT_PUBLIC_FORMNOW_API_KEY || "";
   const [mode, setMode] = useState<GenerationMode>("text-to-3d");
   const [prompt, setPrompt] = useState("");
   const [artStyle, setArtStyle] = useState<"realistic" | "sculpture">("realistic");
@@ -169,11 +171,11 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
+    <main className="min-h-screen bg-linear-to-br from-gray-900 via-purple-900 to-gray-900">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-400 via-pink-500 to-blue-500 bg-clip-text text-transparent mb-4">
+          <h1 className="text-5xl font-bold bg-linear-to-r from-purple-400 via-pink-500 to-blue-500 bg-clip-text text-transparent mb-4">
             MeshNow
           </h1>
           <p className="text-gray-300 text-lg">
@@ -343,7 +345,7 @@ export default function Home() {
               <button
                 type="submit"
                 disabled={isGenerating}
-                className="w-full py-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:from-gray-600 disabled:to-gray-600 text-white rounded-lg font-semibold text-lg transition-all duration-200 transform hover:scale-[1.02] disabled:scale-100 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-4 bg-linear-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:from-gray-600 disabled:to-gray-600 text-white rounded-lg font-semibold text-lg transition-all duration-200 transform hover:scale-[1.02] disabled:scale-100 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isGenerating ? (
                   <>
@@ -384,12 +386,21 @@ export default function Home() {
 
               <div className="flex flex-col sm:flex-row gap-4 items-start justify-between">
                 <DownloadButtons task={task} />
-                <button
-                  onClick={handleReset}
-                  className="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium transition-all duration-200"
-                >
-                  Create New Model
-                </button>
+                <div className="flex gap-2">
+                  {task.model_urls.obj && (
+                    <FormNowUpload
+                      apiKey={formNowApiKey}
+                      modelUrl={task.model_urls.obj}
+                      onError={setError}
+                    />
+                  )}
+                  <button
+                    onClick={handleReset}
+                    className="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-medium transition-all duration-200"
+                  >
+                    Create New Model
+                  </button>
+                </div>
               </div>
 
               {task.thumbnail_url && (
